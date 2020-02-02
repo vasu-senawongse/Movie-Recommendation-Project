@@ -1,0 +1,40 @@
+@font-face {     /*add new font from .otf file*/
+    font-family: Waffle;
+    src: url("font/Waffle Regular.otf") format("opentype");
+}
+
+@-webkit-keyframes example {
+    0%   {left:0px; bottom:10px;}   /*class for css3 animation*/
+    100% {left:0px; bottom:10px;}
+}
+
+.animation{ /*css 3 animation for containerclass*/
+    position: relative;
+     -webkit-animation-name: example;
+     animation-name: example;
+    animation-duration: 1s;
+
+}
+
+.navbar{ /* navbar color back ground */
+    background-color: 1f252d;
+}
+
+.mainfont{
+  color: black;
+}
+
+titlebar{
+  font-size:32px;
+  color: #dc3545;
+}
+
+body { /*setting image background and fix it */
+background-image: url('image/backdrop.jpg');
+background-repeat: no-repeat;
+ background-attachment: fixed;
+}
+
+.roundborder{              /*to make round border to image<*/
+border-radius: 8px;
+}

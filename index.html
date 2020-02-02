@@ -1,0 +1,339 @@
+
+
+<html>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="mycss.css">
+
+<head>
+    <nav class="navbar">     <!--nav bar searh box -->
+      <form class="form-inline searchbox">
+            <titlebar>The movie search engine <titlebar>
+
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" id="myinput" required>   <!-- form for receive search text  -->
+            <button type="button" class="btn btn-danger" id="submit" onclick="start()" >Search</button>  <!-- perform function start when click  -->
+      </form>
+    </nav>
+</head>
+<style>
+
+
+  .modal-body {   /*for change size of bootstrap modal*/
+    width: 100%;
+  }
+
+  .poster{                   /*to make margin between poster image*/
+    margin-top:30px;
+  }
+
+  .buttonbar{
+      margin-bottom: 10px;
+  }
+
+
+  .divthathide{                /*setting the div that hiding in the modal div*/
+    color: white;
+
+    background-color: 1f252d;
+    border-radius: 8px;
+    margin-top:30px;
+    border-color: dc3545;
+
+  }
+
+  .descriptiontext{   /*for manage margin space of descripton text box*/
+    margin-left: 15px;
+    margin-top: 15px;
+    margin-right: 15px;
+    text-align: left;
+  }
+
+  .ani:hover{ /*animation when hover*/
+    position: relative;
+     -webkit-animation-name: example;
+     animation-name: example;
+    animation-duration: 0.5s;
+  }
+
+</style>
+
+<script>
+var imageURL = 'http://image.tmdb.org/t/p/w300'; //variable for keep image url of imbd api before add more uniqe string
+
+
+function start(){ //the first function to perform all function
+   $("#mydiv").html('');    //clear the mydiv that is the main div every time when perform new search
+  var searchText = $("#myinput").val(); // get the search text by using jquery(tagselector).value
+  if(searchText){  //incase that text is not null
+    const apikey ='2d53627b25dbd5ddece5cde94733b728';    // api key for themoviedb api
+    const url = 'https://api.themoviedb.org/3/search/movie';  //url for perform when send request
+
+
+
+
+    $.get( url,{                      // perform a jquery get function to send request to themoviedb api
+
+    query: searchText,  // string for query
+    api_key : apikey
+
+  },appendiv);      // send the json data that receive from api to the appendiv function
+
+}
+
+
+
+
+}
+
+function appendiv(response){  // function for do a next step after get a json movie data
+  console.log(response);
+  var count=0;
+  for(var i=0;i<response.results.length;i++){ // loop for wrtie each json string to the tag form and append to the div
+    if(count<20){ // not morethan 20 result
+      if(response.results[i].poster_path){ // checkwether if poster url present
+        var date = response.results[i].release_date;
+        var trailername = response.results[i].title+" "+date.slice(0,4)+" "+"trailer";  // set criteria of searching a trailer from youtube the criteria is title name + year + "trailer"
+      let thediv = `
+
+                <div class="col-sm-4 poster"><a data-toggle="collapse" href="#${response.results[i].id}" aria-expanded="false" aria-controls="${response.results[i].id}" class="ani">
+                <center><img src="${imageURL+response.results[i].poster_path}" class="roundborder" ></center>
+                </a>
+                </div>
+
+                <div class="collapse col-sm-4" id="${response.results[i].id}" >
+                <center><div class="divthathide">
+                <div class="descriptiontext">
+                  Title : ${response.results[i].title}<br><br>
+                  Description : ${response.results[i].overview}<br><br>
+                  ReleaseDate : ${response.results[i].release_date}<br><br>
+                </div>
+                  <div class="buttonbar roundborder">
+          <button type="button" class="btn btn-danger" id="submit1" onclick="youtube('${trailername}');">Video</button>
+          <button type="button" class="btn btn-danger" id="submit2" onclick="twitter('${response.results[i].title}');">Twitter</button>
+          <button type="button" class="btn btn-danger" id="submit3" onclick="spotify('${response.results[i].title}');">Spotify</button>
+          </div>
+                <div></center>
+                </div>
+
+       `
+      $("#mydiv").append(thediv); // use create the string and append it to the main div
+      //in the button class set 3 button for each movie youtube twitter and spotify the and setthe value that will parse to the function when user click the button by using on click
+      }
+
+
+    }
+
+
+  }
+
+}
+
+
+function spotify(str){ // the function to perform spotify api
+
+  $.ajax({   // use ajax get method to receive the data form spotify php file
+  type: "GET",
+  async : false,  // set asynchronize to the false due to it don't need to do asynchronize since we will wait until the api send all data complete
+  // cache : false,
+  url: "serverside/spotify/src/spotify.php?word="+str, //url for sending request and perform ajax
+  success: function(a){  // when success check whether if a present perform next step by append it to the modal div
+    if(a){ // append the that receive from the twitter php file to the modal div
+      let newdiv = `
+      <div class="modal-dialog" style"color:white;">
+        <div class="modal-content" style="background-color:2d3641;color:white">
+
+          <!-- Modal Header -->
+          <div class="modal-header" style="background-color:2d3641;color:white">
+            <h4 class="modal-title">${str} Sound Track</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="modal-body" style="background-color:2d3641;color:white">
+            ${a}
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer" style="background-color:2d3641;color:white">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+          </div>
+
+        </div>
+      </div>
+
+      `
+      $('#myModal').html('');   // clear old modal div
+      $('#myModal').append(newdiv); // append new div
+      $('#myModal').modal('show'); // use jquery to show a modal div that hide before
+
+    }else{  // in the case that not have any data present
+      let newdiv = `This movie not have a soundtrack`
+
+      $('#myModal').html('');
+      $('#myModal').append(newdiv);
+      $('#myModal').modal('show');
+    }
+  }
+});
+
+
+}
+
+
+function youtube(str){ // a function to sending request and get data from youtube api
+
+  $.get('https://www.googleapis.com/youtube/v3/search', {   //send request to server
+  async: false, // set asynchronize to the false due to it don't need to do asynchronize since we will wait until the api send all data complete
+  q: str,    //send request text that receive from input to server
+  maxResults: 1,   // max 10 video for search
+  part: 'snippet',  // type of search word set to snippet
+  key: 'AIzaSyDGxOZqQ4rfdupyNg2qOjmFHK3oAM15Ob8'  //send API key
+},function(res){ // perform a next funtion by parase value that receive from youtube api to this function
+
+    console.log(res.items[0].id.videoId);
+
+
+
+    let newdiv = `
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header" style="background-color:2d3641;color:white">
+          <h4 class="modal-title">${str}</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body" style="background-color:2d3641;color:white">
+        <center> '<iframe width="450" height="280"src="https://www.youtube.com/embed/${res.items[0].id.videoId}"></iframe>'</center>
+
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer" style="background-color:2d3641;color:white">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+
+
+
+    `
+    $('#myModal').html(''); // cleardata,append, and show the modal
+    $('#myModal').append(newdiv);
+    $('#myModal').modal('show');
+
+
+  });
+
+
+
+
+}
+
+
+function twitter(str){ // function to sendrequse and getting data form the twitter api file
+
+  if (window.XMLHttpRequest) {
+      // code for IE7+, Firefox, Chrome, Opera, Safari
+      xmlhttp = new XMLHttpRequest();
+  } else {
+      // code for IE6, IE5
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+          // document.getElementById("demo").innerHTML = this.responseText;
+          console.log(this.responseText); // use the data that receive from the php file (responseText) append to the modal
+
+          let newdiv = `
+          <div class="modal-dialog">
+            <div class="modal-content">
+
+              <!-- Modal Header -->
+              <div class="modal-header style="background-color:2d3641;color:white">
+                <h4 class="modal-title">Comment from twitter</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+
+              <!-- Modal body -->
+              <div class="modal-body style="background-color:2d3641;color:white">
+                ${this.responseText}
+              </div>
+
+              <!-- Modal footer -->
+              <div class="modal-footer style="background-color:2d3641;color:white">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+
+
+          `
+          $('#myModal').html(''); // cleardata,append, and show the modal
+          $('#myModal').append(newdiv);
+          $('#myModal').modal('show');
+
+      }
+  };
+  xmlhttp.open("GET","serverside/twitter/twitter.php?word="+str,false); // sendrequest to the twitter php file
+  xmlhttp.send();
+
+
+}
+
+</script>
+
+<body >
+  <div class="container-fluid">
+
+  <div class="container outer" >
+
+    <div>  <!--   for header  -->
+
+
+
+    </div>
+
+    <div id="mydiv" class="row mainfont ">  <!-- main dive showmovie -->
+
+            <div style="height:700px;">
+            </div>
+
+    </div>
+
+
+  </div>
+
+
+  <div class="fluid modal fade" id="myModal"> <!-- small popup-->
+
+
+  </div>
+
+  <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="mylargeModal"> <!-- for the large popup-->
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        ...
+      </div>
+    </div>
+  </div>
+
+
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+
+
+</body>
+
+<nav class="navbar" style="height:50px; margin-top:30px; color:white;">
+  <h7 class="mainfont"> Created by Supakorn Sillpathadapong, Vasu Senawongse,Namchew Saguandekul,Jirayuth Saengsiwarit</h7>
+</nav>
+</html>
